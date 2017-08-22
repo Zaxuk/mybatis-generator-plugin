@@ -64,7 +64,7 @@ public final class MySQLPaginationPlugin extends PluginAdapter {
 
         String enableRepositoryValue = javaClientProperties.getProperty(enableRepository);
 
-        if (enableRepositoryValue != null && enableRepositoryValue.length() > 0) {
+        if (isNotEmptyString(enableRepositoryValue) && enableRepositoryValue.equals("true")) {
             FullyQualifiedJavaType repository = new FullyQualifiedJavaType(repositoryType);
             interfaze.addImportedType(repository);
             interfaze.addAnnotation("@Repository");
