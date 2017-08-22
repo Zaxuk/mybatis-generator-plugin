@@ -9,6 +9,8 @@ import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * MySQL 分页生成插件。
@@ -19,6 +21,11 @@ import java.util.List;
 public final class MySQLPaginationPlugin extends PluginAdapter {
 
     public final String pageClass = new Page().getClass().getName();
+    public final String enableRepository = "enableRepository";
+    public final String enableCache = "enableCache";
+    public final String repositoryType = "org.springframework.stereotype.Repository";
+    public final String cacheableType = "org.springframework.cache.annotation.Cacheable";
+
 
     @Override
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass,
@@ -35,6 +42,66 @@ public final class MySQLPaginationPlugin extends PluginAdapter {
         page.addElement(new TextElement("limit #{page.begin} , #{page.length}"));
         element.addElement(page);
         return super.sqlMapUpdateByExampleWithoutBLOBsElementGenerated(element, introspectedTable);
+    }
+
+    /**
+     * 根据generatorConfig.xml配置文件中table节点和javaClientGenerator节点的信息生成java mapper文件
+     * table节点优先级高于java client节点
+     *
+     * @param interfaze
+     * @param topLevelClass
+     * @param introspectedTable
+     * @return
+     */
+    @Override
+    public boolean clientGenerated(Interface interfaze,
+                                   TopLevelClass topLevelClass,
+                                   IntrospectedTable introspectedTable) {
+
+        Properties javaClientProperties = context.getJavaClientGeneratorConfiguration().getProperties();
+        Properties tableProperties = introspectedTable.getTableConfiguration().getProperties();
+
+
+        String enableRepositoryValue = javaClientProperties.getProperty(enableRepository);
+
+        if (enableRepositoryValue != null && enableRepositoryValue.length() > 0) {
+            FullyQualifiedJavaType repository = new FullyQualifiedJavaType(repositoryType);
+            interfaze.addImportedType(repository);
+            interfaze.addAnnotation("@Repository");
+        }
+
+        String cacheValue = isNotEmptyString(tableProperties.getProperty(enableCache)) ? tableProperties.getProperty(enableCache) : javaClientProperties.getProperty(enableCache);
+
+        if (cacheValue != null && cacheValue.length() > 0 && !cacheValue.equals("false")) {
+            addCacheable(interfaze, cacheValue);
+        }
+
+        return true;
+    }
+
+    private void addCacheable(Interface interfaze, String cacheValue) {
+
+        FullyQualifiedJavaType cacheable = new FullyQualifiedJavaType(cacheableType);
+
+        Set<FullyQualifiedJavaType> importTypes = interfaze.getImportedTypes();
+        if (importTypes.contains(cacheable)) {
+            return;
+        }
+
+        interfaze.addImportedType(cacheable);
+        StringBuilder sb = new StringBuilder();
+        sb.append("@Cacheable(value = \"");
+        sb.append(cacheValue);
+        sb.append("\")");
+        interfaze.addAnnotation(sb.toString());
+    }
+
+    public boolean isEmptyString(String str) {
+        return str == null || str.trim().length() == 0;
+    }
+
+    public boolean isNotEmptyString(String str) {
+        return !isEmptyString(str);
     }
 
     /**
