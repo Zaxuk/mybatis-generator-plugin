@@ -1,7 +1,7 @@
 # mybatis-generator-plugin
 mybatis generator分页插件，原作者：<a href="mailto:DL88250@gmail.com">Liang Ding</a>，针对项目实际情况对此插件新增了一些功能。
 
-##新增功能
+## 新增功能
 1. Java Mapper文件自动补充@Repository注解（可配置）
 
 使用spring的MapperScannerConfigurer可自动扫描注册Mapper，但是由于未加注解，IDE会报错提示不能注入对象。
@@ -46,7 +46,9 @@ mybatis generator分页插件，原作者：<a href="mailto:DL88250@gmail.com">L
     
 在table报文节点中加上属性enableCache，值需设置为cache的名字，此配置可以覆盖javaClientGenerator报文节点中的默认全局配置，配置如下：
 
-    <table tableName="USER" domainObjectName="User" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true">
+    <table tableName="USER" domainObjectName="User" 
+        enableCountByExample="false" enableUpdateByExample="false" 
+        enableDeleteByExample="false" enableSelectByExample="true">
         <property name="enableCache" value="userCache"/>
     </table>
     
@@ -62,7 +64,9 @@ mybatis generator分页插件，原作者：<a href="mailto:DL88250@gmail.com">L
     
 另外，在table报文节点中将属性enableCache设置为false，可以关闭对应Mapper文件的自动补充功能，配置如下：
 
-    <table tableName="RESOURCE" domainObjectName="Resource" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true">
+    <table tableName="RESOURCE" domainObjectName="Resource" 
+        enableCountByExample="false" enableUpdateByExample="false" 
+        enableDeleteByExample="false" enableSelectByExample="true">
         <property name="enableCache" value="false"/>
     </table>
     
