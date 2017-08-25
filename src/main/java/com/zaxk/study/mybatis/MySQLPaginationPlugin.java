@@ -23,6 +23,7 @@ public final class MySQLPaginationPlugin extends PluginAdapter {
     public final String pageClass = new Page().getClass().getName();
     public final String enableRepository = "enableRepository";
     public final String enableCache = "enableCache";
+    public final String keyGenerator = "keyGenerator";
     public final String repositoryType = "org.springframework.stereotype.Repository";
     public final String cacheableType = "org.springframework.cache.annotation.Cacheable";
 
@@ -71,15 +72,14 @@ public final class MySQLPaginationPlugin extends PluginAdapter {
         }
 
         String cacheValue = isNotEmptyString(tableProperties.getProperty(enableCache)) ? tableProperties.getProperty(enableCache) : javaClientProperties.getProperty(enableCache);
+        String keyGeneratorValue = isNotEmptyString(tableProperties.getProperty(keyGenerator)) ? tableProperties.getProperty(keyGenerator) : javaClientProperties.getProperty(keyGenerator);
 
-        if (cacheValue != null && cacheValue.length() > 0 && !cacheValue.equals("false")) {
-            addCacheable(interfaze, cacheValue);
-        }
+        addCacheable(interfaze, cacheValue, keyGeneratorValue);
 
         return true;
     }
 
-    private void addCacheable(Interface interfaze, String cacheValue) {
+    private void addCacheable(Interface interfaze, String cacheValue, String keyGenerator) {
 
         FullyQualifiedJavaType cacheable = new FullyQualifiedJavaType(cacheableType);
 
@@ -88,11 +88,24 @@ public final class MySQLPaginationPlugin extends PluginAdapter {
             return;
         }
 
+        if (isEmptyString(cacheValue) || cacheValue.equals("false")) {
+            return;
+        }
+
         interfaze.addImportedType(cacheable);
         StringBuilder sb = new StringBuilder();
         sb.append("@Cacheable(value = \"");
         sb.append(cacheValue);
-        sb.append("\")");
+        sb.append("\"");
+
+        if (isNotEmptyString(keyGenerator)) {
+            sb.append(", ");
+            sb.append("keyGenerator = \"");
+            sb.append(keyGenerator);
+            sb.append("\"");
+        }
+
+        sb.append(")");
         interfaze.addAnnotation(sb.toString());
     }
 
