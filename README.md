@@ -28,7 +28,8 @@ mybatis generator分页插件，原作者：<a href="mailto:DL88250@gmail.com">L
 
 可在javaClientGenerator报文节点加上属性enableCache，值需设置为cache的名字，注意此配置会将所有的Mapper都补充上@Cacheable注解，可以理解为默认或全局缓存配置，配置如下：
 
-    <javaClientGenerator targetPackage="com.talkweb.ylimaf.web.dao" targetProject="src/main/java" type="XMLMAPPER">
+    <javaClientGenerator targetPackage="com.talkweb.ylimaf.web.dao"
+                         targetProject="src/main/java" type="XMLMAPPER">
         <property name="enableSubPackages" value="true"/>
         <property name="enableRepository" value="true"/>
         <property name="enableCache" value="eternalCache"/>
@@ -46,9 +47,9 @@ mybatis generator分页插件，原作者：<a href="mailto:DL88250@gmail.com">L
     
 在table报文节点中加上属性enableCache，值需设置为cache的名字，此配置可以覆盖javaClientGenerator报文节点中的默认全局配置，配置如下：
 
-    <table tableName="USER" domainObjectName="User" 
-        enableCountByExample="false" enableUpdateByExample="false" 
-        enableDeleteByExample="false" enableSelectByExample="true">
+    <table tableName="USER" domainObjectName="User"
+           enableCountByExample="false" enableUpdateByExample="false"
+           enableDeleteByExample="false" enableSelectByExample="true">
         <property name="enableCache" value="userCache"/>
     </table>
     
@@ -64,16 +65,56 @@ mybatis generator分页插件，原作者：<a href="mailto:DL88250@gmail.com">L
     
 另外，在table报文节点中将属性enableCache设置为false，可以关闭对应Mapper文件的自动补充功能，配置如下：
 
-    <table tableName="RESOURCE" domainObjectName="Resource" 
-        enableCountByExample="false" enableUpdateByExample="false" 
-        enableDeleteByExample="false" enableSelectByExample="true">
-        <property name="enableCache" value="false"/>
+    <table tableName="RESOURCE" domainObjectName="Resource"
+           enableCountByExample="false" enableUpdateByExample="false"
+           enableDeleteByExample="false" enableSelectByExample="true">
     </table>
     
 生成的Mapper文件如下：
 
+    import org.springframework.cache.annotation.Cacheable;
     import org.springframework.stereotype.Repository;
     
     @Repository
     public interface ResourceMapper {
+    }
+    
+3. Java Mapper文件自动补充keyGenerator注解（可配置） 
+
+可在javaClientGenerator报文节点加上属性keyGenerator，值需设置为自定义keyGenerator的名字，注意此配置会将所有的Mapper都补充上keyGenerator注解，可以理解为默认或全局缓存配置，配置如下：
+
+    <javaClientGenerator targetPackage="com.talkweb.ylimaf.web.dao"
+                         targetProject="src/main/java" type="XMLMAPPER">
+        <property name="enableSubPackages" value="true"/>
+        <property name="enableRepository" value="true"/>
+        <property name="enableCache" value="eternalCache"/>
+        <property name="keyGenerator" value="myCacheKeyGenerator"/>
+    </javaClientGenerator>
+    
+生成的Mapper文件如下：
+    
+    import org.springframework.cache.annotation.Cacheable;
+    import org.springframework.stereotype.Repository;
+    
+    @Repository
+    @Cacheable(value = "eternalCache", keyGenerator = "myCacheKeyGenerator")
+    public interface DictItemMapper {
+    }
+
+在table报文节点中加上属性keyGenerator，值需设置为自定义keyGenerator的名字，此配置可以覆盖javaClientGenerator报文节点中的默认全局配置，配置如下：
+
+    <table tableName="DICT_ITEM" domainObjectName="DictItem"
+           enableCountByExample="false" enableUpdateByExample="false"
+           enableDeleteByExample="false" enableSelectByExample="true">
+        <property name="keyGenerator" value="anotherCacheKeyGenerator"/>
+    </table>
+    
+生成的Mapper文件如下：
+    
+    import org.springframework.cache.annotation.Cacheable;
+    import org.springframework.stereotype.Repository;
+    
+    @Repository
+    @Cacheable(value = "eternalCache", keyGenerator = "anotherCacheKeyGenerator")
+    public interface DictItemMapper {
     }
